@@ -37,7 +37,7 @@ namespace SalesWebMvc.Controllers
 
         public IActionResult Delete(int? id)
         {
-            if(id.Value == 0)
+            if(id == null)
             {
                 return NotFound(); //Retorna um notfound para a tela
             }
@@ -58,6 +58,23 @@ namespace SalesWebMvc.Controllers
         {
             _sellerService.Remove(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound(); //Retorna um notfound para a tela
+            }
+
+            var seller = _sellerService.FindById(id.Value);
+
+            if (seller == null)
+            {
+                return NotFound();
+            }
+
+            return View(seller);
         }
     }
 }
