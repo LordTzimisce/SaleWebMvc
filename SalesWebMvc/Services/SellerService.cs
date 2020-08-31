@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
+using SalesWebMvc.Services.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SalesWebMvc.Services
 {
@@ -39,5 +42,29 @@ namespace SalesWebMvc.Services
             _context.Remove(obj);
             _context.SaveChanges();
         }
+
+        public void Update(Seller seller)
+        {
+            //se não existir seller com id informado, retorna exception
+            if (!_context.Seller.Any(x => x.Id == seller.Id))
+            {
+                throw new NotFoundException("Seller id not found");
+            }
+
+            //tenta atualizar o dado, caso não funcione, chamado a excessao a nivel de servico
+            try
+            {
+                //Atualizar informações de seller
+                _context.Update(seller);
+                //Salva mudanças - commit
+                _context.SaveChanges();
+            }
+            catch(DbUpdateConcurrencyException e)
+            {
+                //Chamando exc excessao a nivel de servico
+                throw new DbConcurrencyException(e.Message);
+            }
+        }
+
     }
 }
